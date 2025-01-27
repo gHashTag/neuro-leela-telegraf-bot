@@ -1,7 +1,6 @@
 import { supabase } from '.'
 
 export async function getPlan(loka: number, isRu: boolean) {
-  console.log('CASE: getPlan')
   try {
     // Получить строку данных из таблицы по loka
     const language = isRu ? 'ru' : 'en'
@@ -16,7 +15,6 @@ export async function getPlan(loka: number, isRu: boolean) {
       throw new Error(error.message)
     }
 
-    console.log(data, 'data')
     return {
       short_desc: data[`short_desc_${language}`],
       image: data.image,

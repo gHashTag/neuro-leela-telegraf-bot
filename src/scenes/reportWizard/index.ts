@@ -6,44 +6,9 @@ import { isRussian } from '@/helpers'
 export const reportWizard = new Scenes.WizardScene<MyContext>(
   'reportWizard',
   async ctx => {
-    console.log('Entering report scene')
+    console.log('CASE 1: reportWizard.next')
     const isRu = isRussian(ctx)
-
-    await ctx.reply(
-      isRu
-        ? '📝 Пожалуйста, напишите ваш отчёт.'
-        : '📝 Please write your report.'
-    )
-
-    return ctx.wizard.next()
-  },
-  async ctx => {
-    console.log('report')
-    const isRu = isRussian(ctx)
-
-    // Проверка, что сообщение является текстовым
-    if (!ctx.message || !('text' in ctx.message)) {
-      await ctx.reply(
-        isRu
-          ? '🔒 Пожалуйста, отправьте текстовый отчёт.'
-          : '🔒 Please send a text report.'
-      )
-      return
-    }
-
-    const report = ctx.message.text
-
-    if (report.length < 50) {
-      await ctx.reply(
-        isRu
-          ? '🔒 Отчёт должен быть <b>длиннее 50 символов</b>.'
-          : '🔒 Report must be <b>longer than 50 characters</b>.',
-        {
-          parse_mode: 'HTML',
-        }
-      )
-      return
-    }
+    const report = ctx.session.report
 
     const loader = await ctx.reply(isRu ? '🔮 Загрузка...' : '🔮 Loading...')
     await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
@@ -81,18 +46,13 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
     await ctx.reply(response, { parse_mode: 'Markdown', ...step_callback })
     await ctx.deleteMessage(loader.message_id)
 
-    // После обработки отчета, можно покинуть сцену
     return ctx.wizard.next()
   },
-  ctx => {
-    console.log('CASE: callback_query')
-    if ('callback_query' in ctx.update && 'data' in ctx.update.callback_query) {
-      const text = ctx.update.callback_query.data
-      console.log('1 text menuScene.next!!!', text)
-      if (text === 'make_next_move') {
-        console.log('CASE: 🎲 Сделать следующий ход')
-        return ctx.scene.enter('makeNextMoveScene')
-      }
+  async ctx => {
+    console.log('CASE 3: callback_query')
+    if (ctx.callbackQuery?.data === 'make_next_move') {
+      console.log('CASE: 🎲 Сделать следующий ход')
+      return ctx.scene.enter('makeNextMoveWizard')
     } else {
       console.log('CASE: reportScene.leave.else')
       return ctx.scene.leave()
@@ -100,12 +60,6 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
   }
 )
 
-reportWizard.on('message', async ctx => {
-  console.log('CASE: reportWizard.on.message')
-  const isRu = ctx.from?.language_code === 'ru'
-  await ctx.reply(
-    isRu
-      ? '🔒 Пожалуйста, отправьте текстовый отчёт.'
-      : '🔒 Please send a text report.'
-  )
+reportWizard.leave(ctx => {
+  console.log('CASE: reportWizard.leave')
 })

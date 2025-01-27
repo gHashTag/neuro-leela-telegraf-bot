@@ -118,7 +118,7 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
         return ctx.scene.enter('subscriptionScene')
       } else if (text === 'make_next_move') {
         console.log('CASE: 🎲 Сделать следующий ход')
-        return ctx.scene.enter('makeNextMoveScene')
+        return ctx.scene.enter('makeNextMoveWizard')
       }
     } else if ('message' in ctx.update && 'text' in ctx.update.message) {
       const text = ctx.update.message.text
