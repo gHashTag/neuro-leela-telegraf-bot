@@ -29,7 +29,7 @@ export async function sendGameStep(
         },
       }
     )
-    console.log('data', data)
+    console.log('sendGameStep data', data)
     return data
   } catch (error) {
     if (isAxiosError(error)) {

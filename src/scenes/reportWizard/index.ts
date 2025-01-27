@@ -2,6 +2,7 @@ import { Scenes } from 'telegraf'
 import { updateUser, updateHistory } from '@/core/supabase'
 import { MyContext } from '@/interfaces'
 import { isRussian } from '@/helpers'
+import { CallbackQuery } from 'telegraf/typings/core/types/typegram'
 
 export const reportWizard = new Scenes.WizardScene<MyContext>(
   'reportWizard',
@@ -32,6 +33,8 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
     if (!ctx.from?.username) throw new Error('User not found')
     if (!ctx.chat?.id) throw new Error('Chat not found')
 
+    await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
+
     const response = await updateHistory({
       fullName: ctx.session.fullName,
       telegram_id: ctx.from.id.toString(),
@@ -48,11 +51,15 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
 
     return ctx.wizard.next()
   },
-  async ctx => {
+  async (ctx: MyContext) => {
     console.log('CASE 3: callback_query')
-    if (ctx.callbackQuery?.data === 'make_next_move') {
-      console.log('CASE: 🎲 Сделать следующий ход')
-      return ctx.scene.enter('makeNextMoveWizard')
+    const callbackQuery = ctx.callbackQuery
+    if (callbackQuery && 'data' in callbackQuery) {
+      const data = callbackQuery.data
+      if (data === 'make_next_move') {
+        console.log('CASE: 🎲 Сделать следующий ход')
+        return ctx.scene.enter('makeNextMoveWizard')
+      }
     } else {
       console.log('CASE: reportScene.leave.else')
       return ctx.scene.leave()

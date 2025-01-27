@@ -1,6 +1,7 @@
 import { supabase } from '.'
 
 export async function getPlan(loka: number, isRu: boolean) {
+  console.log('getPlan', loka, isRu)
   try {
     // Получить строку данных из таблицы по loka
     const language = isRu ? 'ru' : 'en'

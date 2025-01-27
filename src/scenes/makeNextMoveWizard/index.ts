@@ -1,14 +1,13 @@
 import { Scenes } from 'telegraf'
-import { MyContext } from '../../interfaces'
+import { MyContext, MyTextMessageContext } from '../../interfaces'
 import {
   getUserByTelegramId,
   getLastStep,
   getPlan,
   gameStep,
-  updateUser,
-  updateHistory,
 } from '@/core/supabase'
 import { isRussian } from '@/helpers'
+import { sendGameStep } from '@/services/sendGameStep'
 
 const directionMap: { [key: string]: { ru: string; en: string } } = {
   'stop 🛑': { ru: 'Стоп 🛑', en: 'Stop 🛑' },
@@ -44,23 +43,26 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
 
     ctx.session.fullName = `${user.first_name} ${user.last_name}`
 
-    if (user.subscription === 'stars' && user.first_request) {
-      await ctx.reply(
-        isRu
-          ? '🔒 Вы не подписаны на какой-либо уровень. Подписка неактивна. \n\n/buy - выбери уровень и оформляй подписку'
-          : '🔒 You are not subscribed to any level. The subscription is inactive. \n\n/buy - select a level and subscribe'
-      )
-      return ctx.scene.leave()
-    }
-
     const step = await getLastStep(user.telegram_id, isRu)
+    console.log('step', step)
     if (!step) {
       console.error('No last step found')
       return ctx.scene.leave()
     }
-
-    const plan = await getPlan(step.loka, isRu)
+    const response = await sendGameStep(roll, [step], ctx, isRu)
+    console.log('response', response)
+    if (!response.loka) {
+      throw new Error('No loka found')
+    }
+    const plan = await getPlan(response.loka, isRu)
+    console.log('plan', plan)
+    await gameStep({
+      roll,
+      response: [response],
+      telegram_id: user.telegram_id,
+    })
     const stepDirection = directionMap[step.direction.toLowerCase()]
+    console.log('stepDirection', stepDirection)
     if (!stepDirection) {
       await ctx.reply(
         isRu
@@ -71,6 +73,7 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
     }
 
     const directionText = stepDirection[isRu ? 'ru' : 'en']
+    console.log('directionText', directionText)
     const text = isRu
       ? `<b>🔮 Вы стоите на плане ${step.loka} - ${plan.name} - ${directionText}</b>
         
@@ -99,7 +102,7 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
 
     return ctx.wizard.next()
   },
-  async ctx => {
+  async (ctx: MyTextMessageContext) => {
     console.log('CASE 1: makeNextMoveWizard.next')
     const isRu = isRussian(ctx)
 
