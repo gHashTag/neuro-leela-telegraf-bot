@@ -76,7 +76,6 @@ export const createUser = async (userData: CreateUserData) => {
       )
     }
   } else {
-    // Создаем базовый объект пользователя без inviter
     const newUser = {
       username,
       telegram_id,
@@ -108,7 +107,8 @@ export const createUser = async (userData: CreateUserData) => {
 
   const { error: insertError } = await supabase.from('game').insert([
     {
-      user_id: telegram_id.toString(),
+      telegram_id: telegram_id.toString(),
+      username,
       loka: 68,
       direction: language_code === 'ru' ? 'Стоп 🛑' : 'Stop 🛑',
       consecutive_sixes: 0,

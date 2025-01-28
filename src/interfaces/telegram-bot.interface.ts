@@ -55,6 +55,7 @@ export interface MySession extends Scenes.WizardSession<MyWizardSession> {
   fullName: string
   report: string
   ai_response: string
+  roll: number
 }
 
 export interface MyContext extends Context {

@@ -46,7 +46,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
       isRu ? 'ru' : 'en',
       ctx.session.fullName
     )
-    console.log('response', response)
+
     await ctx.reply(response, { parse_mode: 'Markdown', ...step_callback })
     await ctx.deleteMessage(loader.message_id)
 
@@ -59,7 +59,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
       const data = callbackQuery.data
       if (data === 'make_next_move') {
         console.log('CASE: 🎲 Сделать следующий ход')
-        return ctx.scene.enter('makeNextMoveWizard')
+        return ctx.scene.enter('rollDiceWizard')
       }
     } else {
       console.log('CASE: reportScene.leave.else')

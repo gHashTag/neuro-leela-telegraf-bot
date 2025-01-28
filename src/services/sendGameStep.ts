@@ -12,24 +12,19 @@ export type Plan = {
 
 export async function sendGameStep(
   roll: number,
-  report: string,
   telegram_id: string,
   ctx: MyContext,
   isRu: boolean
-): Promise<{ gameStep: GameStep; plan: Plan } | null> {
+): Promise<{ gameStep: GameStep; plan: Plan; direction: string } | null> {
   try {
     const url = `${
       isDev ? 'http://localhost:3000' : ELESTIO_URL
     }/game/game-step`
-    console.log('url', url)
-    console.log('roll', roll)
-    console.log('report', report)
-    console.log('telegram_id', telegram_id)
+
     const { data } = await axios.post(
       url,
       {
         roll,
-        report,
         telegram_id,
       },
       {
@@ -42,6 +37,7 @@ export async function sendGameStep(
     return {
       gameStep: data.gameStep,
       plan: data.plan,
+      direction: data.direction,
     }
   } catch (error) {
     if (isAxiosError(error)) {

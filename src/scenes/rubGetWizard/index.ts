@@ -72,7 +72,6 @@ async function getInvoiceId(
       description,
       password1
     )
-    console.log('response', response)
 
     return response
   } catch (error) {

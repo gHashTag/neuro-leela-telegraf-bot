@@ -36,6 +36,7 @@ import {
   inviteScene,
   makeNextMoveWizard,
   reportWizard,
+  rollDiceWizard,
 } from './scenes'
 import { subscriptionMiddleware } from '@/middlewares/subscription'
 
@@ -79,6 +80,7 @@ export const stage = new Scenes.Stage<MyContext>([
   inviteScene,
   makeNextMoveWizard,
   reportWizard,
+  rollDiceWizard,
   ...levelQuestWizard,
 ])
 
