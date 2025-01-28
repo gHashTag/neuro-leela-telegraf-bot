@@ -1,27 +1,36 @@
 import { ELESTIO_URL } from '@/config'
 import { isDev } from '@/config'
-import { GameStep } from '@/core/supabase/getLastStep'
-import { MyContext } from '@/interfaces'
+
+import { MyContext, GameStep } from '@/interfaces'
 import axios, { isAxiosError } from 'axios'
+
+export type Plan = {
+  short_desc: string
+  image: string
+  name: string
+}
 
 export async function sendGameStep(
   roll: number,
-  response: GameStep[],
+  report: string,
+  telegram_id: string,
   ctx: MyContext,
   isRu: boolean
-): Promise<GameStep | null> {
-  console.log('Starting sendGameStep with:', { roll })
-  console.log('response', response)
+): Promise<{ gameStep: GameStep; plan: Plan } | null> {
   try {
     const url = `${
       isDev ? 'http://localhost:3000' : ELESTIO_URL
     }/game/game-step`
     console.log('url', url)
+    console.log('roll', roll)
+    console.log('report', report)
+    console.log('telegram_id', telegram_id)
     const { data } = await axios.post(
       url,
       {
         roll,
-        result: response,
+        report,
+        telegram_id,
       },
       {
         headers: {
@@ -30,7 +39,10 @@ export async function sendGameStep(
       }
     )
     console.log('sendGameStep data', data)
-    return data
+    return {
+      gameStep: data.gameStep,
+      plan: data.plan,
+    }
   } catch (error) {
     if (isAxiosError(error)) {
       console.error('API Error:', error.response?.data || error.message)

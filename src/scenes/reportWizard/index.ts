@@ -1,15 +1,14 @@
 import { Scenes } from 'telegraf'
-import { updateUser, updateHistory } from '@/core/supabase'
+
 import { MyContext } from '@/interfaces'
 import { isRussian } from '@/helpers'
-import { CallbackQuery } from 'telegraf/typings/core/types/typegram'
+import { sendAIResponse } from '@/services/sendAIResponse'
 
 export const reportWizard = new Scenes.WizardScene<MyContext>(
   'reportWizard',
   async ctx => {
     console.log('CASE 1: reportWizard.next')
     const isRu = isRussian(ctx)
-    const report = ctx.session.report
 
     const loader = await ctx.reply(isRu ? '🔮 Загрузка...' : '🔮 Loading...')
     await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
@@ -17,15 +16,20 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
     const step_callback = {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '🎲', callback_data: `make_next_move` }],
           [
             {
-              text: 'Gameboard',
-              web_app: {
-                url: `https://leela-chakra-nextjs.vercel.app/gameboard`,
-              },
+              text: isRu ? 'Сделать следующий ход 🎲' : 'Make the next move 🎲',
+              callback_data: `make_next_move`,
             },
           ],
+          // [
+          //   {
+          //     text: 'Gameboard',
+          //     web_app: {
+          //       url: `https://leela-chakra-nextjs.vercel.app/gameboard`,
+          //     },
+          //   },
+          // ],
         ],
       },
     }
@@ -35,17 +39,14 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
 
     await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
 
-    const response = await updateHistory({
-      fullName: ctx.session.fullName,
-      telegram_id: ctx.from.id.toString(),
-      username: ctx.from.username || '',
-      language_code: ctx.from.language_code || 'ru',
-      content: report,
-    })
+    const response = await sendAIResponse(
+      ctx.from.id.toString(),
+      'asst_PeA6kj3k9LmspxDVRrnPa8ux', // Leela Chakra Assistant ID
+      ctx.session.report,
+      isRu ? 'ru' : 'en',
+      ctx.session.fullName
+    )
     console.log('response', response)
-
-    await updateUser(ctx.from.id.toString(), { is_write: false })
-
     await ctx.reply(response, { parse_mode: 'Markdown', ...step_callback })
     await ctx.deleteMessage(loader.message_id)
 

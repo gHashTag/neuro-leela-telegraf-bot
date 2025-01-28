@@ -1,11 +1,6 @@
 import { Scenes } from 'telegraf'
 import { MyContext, MyTextMessageContext } from '../../interfaces'
-import {
-  getUserByTelegramId,
-  getLastStep,
-  getPlan,
-  gameStep,
-} from '@/core/supabase'
+import { getUserByTelegramId, getPlan } from '@/core/supabase'
 import { isRussian } from '@/helpers'
 import { sendGameStep } from '@/services/sendGameStep'
 
@@ -43,25 +38,20 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
 
     ctx.session.fullName = `${user.first_name} ${user.last_name}`
 
-    const step = await getLastStep(user.telegram_id, isRu)
-    console.log('step', step)
-    if (!step) {
-      console.error('No last step found')
-      return ctx.scene.leave()
-    }
-    const response = await sendGameStep(roll, [step], ctx, isRu)
-    console.log('response', response)
-    if (!response.loka) {
+    const { gameStep, plan } = await sendGameStep(
+      roll,
+      ctx.session.report,
+      user.telegram_id,
+      ctx,
+      isRu
+    )
+
+    console.log('gameStep', gameStep)
+    if (!gameStep.loka) {
       throw new Error('No loka found')
     }
-    const plan = await getPlan(response.loka, isRu)
-    console.log('plan', plan)
-    await gameStep({
-      roll,
-      response: [response],
-      telegram_id: user.telegram_id,
-    })
-    const stepDirection = directionMap[step.direction.toLowerCase()]
+
+    const stepDirection = directionMap[gameStep.direction.toLowerCase()]
     console.log('stepDirection', stepDirection)
     if (!stepDirection) {
       await ctx.reply(
@@ -74,25 +64,37 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
 
     const directionText = stepDirection[isRu ? 'ru' : 'en']
     console.log('directionText', directionText)
-    const text = isRu
-      ? `<b>🔮 Вы стоите на плане ${step.loka} - ${plan.name} - ${directionText}</b>
-        
+    const text =
+      gameStep.loka === 68
+        ? isRu
+          ? `<b>🔮 Игра начинается и заканчивается на этом плане сознания.</b>
+
+        <i>🎲 Чтобы начать игру или вернуться в нее, нужно выбросить на костях цифру 6.</i>
+
+        ${plan.short_desc}`
+          : `<b>🔮 The game starts and ends on this plane of consciousness.</b>
+        <i>🎲 To start the game or return to it, you need to roll a 6 on the dice 🎲.</i>
+
+        ${plan.short_desc}`
+        : isRu
+        ? `<b>🔮 Вы стоите на плане ${gameStep.loka} - ${plan.name} - ${directionText}</b>
+
         <i>📜 Прочитайте план, напишите отчет, и получите духовную мудрость от гуру ИИ🤖</i>
-        
+
         ${plan.short_desc}
-        
+
         <b>‼️ Для написания отчета обязательно ответьте на это сообщение, иначе игра не продолжится.</b>`
-      : `<b>🔮 You are standing on plan ${step.loka} - ${plan.name} - ${directionText}</b>
-        
+        : `<b>🔮 You are standing on plan ${gameStep.loka} - ${plan.name} - ${directionText}</b>
+
         <i>📜 Read the plan, write a report, and receive spiritual wisdom from the AI guru 🤖</i>
         
         ${plan.short_desc}
-        
+
         <b>‼️ To write the report, you must reply to this message, otherwise the game will not continue.</b>`
 
     if (plan.image) {
-      await ctx.replyWithPhoto(plan.image, {
-        caption: text,
+      await ctx.replyWithPhoto(plan.image)
+      await ctx.reply(text, {
         parse_mode: 'HTML',
         reply_markup: { force_reply: true },
       })
@@ -107,7 +109,6 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
     const isRu = isRussian(ctx)
 
     const report = ctx.message?.text
-    console.log('report', report)
 
     if (!report || report.length < 50) {
       await ctx.reply(
