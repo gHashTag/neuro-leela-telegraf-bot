@@ -49,7 +49,7 @@ export const rollDiceWizard = new Scenes.WizardScene<MyContext>(
       )
       return ctx.wizard.selectStep(0)
     } else {
-      await setLeelaStart(ctx)
+      await setLeelaStart(ctx.from.id.toString(), true)
       return ctx.scene.enter('makeNextMoveWizard')
     }
   },

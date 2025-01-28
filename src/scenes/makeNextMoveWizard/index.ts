@@ -40,11 +40,16 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
 
         <i>🎲 Чтобы начать игру или вернуться в нее, нужно выбросить на костях цифру 6.</i>
 
-        ${plan.short_desc}`
+        ${plan.short_desc}
+
+        <b>‼️ Для написания отчета обязательно ответьте на это сообщение, иначе игра не продолжится.</b>
+        `
           : `<b>🔮 The game starts and ends on this plane of consciousness.</b>
         <i>🎲 To start the game or return to it, you need to roll a 6 on the dice 🎲.</i>
 
-        ${plan.short_desc}`
+        ${plan.short_desc}
+        <b>‼️ To write the report, you must reply to this message, otherwise the game will not continue.</b>
+        `
         : isRu
         ? `<b>🔮 Вы стоите на плане ${gameStep.loka} - ${plan.name} - ${direction}</b>
 

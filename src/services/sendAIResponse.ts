@@ -7,7 +7,7 @@ export async function sendAIResponse(
   report: string,
   language_code: string,
   full_name: string
-): Promise<{ ai_response: string; annotations: string } | null> {
+): Promise<{ ai_response: string } | null> {
   try {
     const url = `${
       isDev ? 'http://localhost:3000' : ELESTIO_URL
@@ -31,7 +31,6 @@ export async function sendAIResponse(
     console.log('sendAIResponse data', data)
     return {
       ai_response: data.ai_response,
-      annotations: data.annotations,
     }
   } catch (error) {
     if (isAxiosError(error)) {

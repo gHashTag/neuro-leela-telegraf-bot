@@ -6,7 +6,7 @@ import { sendAIResponse } from '@/services/sendAIResponse'
 
 export const reportWizard = new Scenes.WizardScene<MyContext>(
   'reportWizard',
-  async ctx => {
+  async (ctx: MyContext) => {
     console.log('CASE 1: reportWizard.next')
     const isRu = isRussian(ctx)
 
@@ -39,7 +39,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
 
     await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
 
-    const { ai_response, annotations } = await sendAIResponse(
+    const { ai_response } = await sendAIResponse(
       ctx.from.id.toString(),
       'asst_PeA6kj3k9LmspxDVRrnPa8ux', // Leela Chakra Assistant ID
       ctx.session.report,
@@ -51,6 +51,25 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
     await ctx.deleteMessage(loader.message_id)
 
     return ctx.wizard.next()
+  },
+  async (ctx: MyContext) => {
+    console.log('CASE 2: User message')
+    if ('text' in ctx.message) {
+      const userMessage = ctx.message.text
+      const isRu = isRussian(ctx)
+      await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
+      const { ai_response } = await sendAIResponse(
+        ctx.from.id.toString(),
+        'asst_PeA6kj3k9LmspxDVRrnPa8ux',
+        userMessage,
+        isRu ? 'ru' : 'en',
+        ctx.session.fullName
+      )
+
+      await ctx.reply(ai_response, { parse_mode: 'Markdown' })
+    } else {
+      await ctx.reply('Please send a text message.')
+    }
   },
   async (ctx: MyContext) => {
     console.log('CASE 3: callback_query')
@@ -68,6 +87,15 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
   }
 )
 
-reportWizard.leave(ctx => {
+reportWizard.leave(async ctx => {
   console.log('CASE: reportWizard.leave')
+  const { ai_response } = await sendAIResponse(
+    ctx.from.id.toString(),
+    'asst_PeA6kj3k9LmspxDVRrnPa8ux',
+    ctx.session.report,
+    'ru',
+    ctx.session.fullName
+  )
+  await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
+  await ctx.reply(ai_response, { parse_mode: 'Markdown' })
 })
