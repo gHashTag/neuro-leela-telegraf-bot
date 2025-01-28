@@ -3,11 +3,25 @@ import { MyContext, MyTextMessageContext } from '../../interfaces'
 import { isRussian } from '@/helpers'
 import { sendGameStep } from '@/services/sendGameStep'
 
+const directionMap: { [key: string]: { ru: string; en: string } } = {
+  'stop 🛑': { ru: 'Стоп 🛑', en: 'Stop 🛑' },
+  'стоп 🛑': { ru: 'Стоп 🛑', en: 'Stop 🛑' },
+  'arrow 🏹': { ru: 'Стрела 🏹', en: 'Arrow 🏹' },
+  'стрела 🏹': { ru: 'Стрела 🏹', en: 'Arrow 🏹' },
+  'snake 🐍': { ru: 'Змея 🐍', en: 'Snake 🐍' },
+  'змея 🐍': { ru: 'Змея 🐍', en: 'Snake 🐍' },
+  'win 🕉': { ru: 'Победа 🕉', en: 'Win 🕉' },
+  'победа 🕉': { ru: 'Победа 🕉', en: 'Win 🕉' },
+  'step 🚶🏼': { ru: 'Шаг 🚶🏼', en: 'Step 🚶🏼' },
+  'шаг 🚶🏼': { ru: 'Шаг 🚶🏼', en: 'Step 🚶🏼' },
+}
+
 export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
   'makeNextMoveWizard',
   async ctx => {
     console.log('CASE 1: makeNextMoveWizard.next')
     const isRu = isRussian(ctx)
+    console.log('isRu', isRu)
     const { gameStep, plan, direction } = await sendGameStep(
       ctx.session.roll,
       ctx.from.id.toString(),
@@ -48,8 +62,26 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
         <b>‼️ To write the report, you must reply to this message, otherwise the game will not continue.</b>`
 
     if (gameStep.loka) {
+      console.log('direction', direction)
+      if (direction) {
+        const lowerCaseDirection = direction.toLowerCase()
+        console.log('lowerCaseDirection', lowerCaseDirection)
+        const directionEntry = directionMap[lowerCaseDirection]
+        console.log('directionEntry', directionEntry)
+        if (directionEntry) {
+          await ctx.reply(isRu ? directionEntry.ru : directionEntry.en)
+        } else {
+          await ctx.reply(
+            isRu ? 'Неизвестное направление' : 'Unknown direction'
+          )
+        }
+      } else {
+        await ctx.reply(
+          isRu ? 'Направление не задано' : 'Direction not provided'
+        )
+      }
       await ctx.replyWithPhoto(
-        `https://yuukfqcsdhkyxegfwlcb.supabase.co/storage/v1/object/public/leelachakra/plans/${gameStep.loka}.jpg`
+        `${process.env.SUPABASE_URL}/storage/v1/object/public/leelachakra/plans/${gameStep.loka}.jpg`
       )
       await ctx.reply(text, {
         parse_mode: 'HTML',

@@ -114,7 +114,7 @@ export const createUser = async (userData: CreateUserData) => {
       consecutive_sixes: 0,
       previous_loka: 68,
       position_before_three_sixes: 0,
-      is_finished: true,
+      is_finished: false,
     },
   ])
   if (insertError) {

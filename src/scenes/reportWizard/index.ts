@@ -39,7 +39,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
 
     await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
 
-    const response = await sendAIResponse(
+    const { ai_response, annotations } = await sendAIResponse(
       ctx.from.id.toString(),
       'asst_PeA6kj3k9LmspxDVRrnPa8ux', // Leela Chakra Assistant ID
       ctx.session.report,
@@ -47,7 +47,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
       ctx.session.fullName
     )
 
-    await ctx.reply(response, { parse_mode: 'Markdown', ...step_callback })
+    await ctx.reply(ai_response, { parse_mode: 'Markdown', ...step_callback })
     await ctx.deleteMessage(loader.message_id)
 
     return ctx.wizard.next()

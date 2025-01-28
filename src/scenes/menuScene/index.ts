@@ -34,17 +34,6 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
         newCount + 1
       }`
 
-      const nextLevel = levels[newCount]
-      const nameStep = nextLevel
-        ? isRu
-          ? nextLevel.title_ru
-          : nextLevel.title_en
-        : isRu
-        ? 'Неизвестный уровень'
-        : 'Unknown level'
-
-      console.log('nameStep', nameStep)
-
       if (newCount <= 10) {
         const message = isRu
           ? `🚀 Чтобы сделать следующий ход, пригласите друга или разблокируйте все функции! 🌟\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`

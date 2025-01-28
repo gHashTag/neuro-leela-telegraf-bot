@@ -47,14 +47,19 @@ export const rollDiceWizard = new Scenes.WizardScene<MyContext>(
           },
         }
       )
-      return ctx.wizard.selectStep(0) // Возвращаемся к первому шагу для повторного броска
+      return ctx.wizard.selectStep(0)
     } else {
       await setLeelaStart(ctx)
       return ctx.scene.enter('makeNextMoveWizard')
     }
+  },
+  async ctx => {
+    const roll = ctx.session.roll
+
+    if (roll === 6) {
+      return ctx.scene.enter('makeNextMoveWizard')
+    } else {
+      return ctx.scene.enter('rollDiceWizard')
+    }
   }
 )
-
-rollDiceWizard.action('roll_dice', ctx => {
-  ctx.scene.reenter() // Повторно входим в сцену, чтобы снова выполнить первый шаг
-})

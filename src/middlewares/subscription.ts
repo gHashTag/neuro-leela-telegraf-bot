@@ -4,7 +4,6 @@ import {
   getUserByTelegramId,
   incrementBalance,
   getUidInviter,
-  getReferalsCount,
 } from '@/core/supabase'
 import { CreateUserData, MyContext } from '@/interfaces'
 import bot from '@/core/bot'
@@ -105,12 +104,8 @@ export const subscriptionMiddleware = async (
     // Создаем пользователя с inviter из start параметра
 
     if (ctx.session.inviteCode) {
-      const {
-        inviter_id,
-        inviter_username,
-        inviter_telegram_id,
-        inviter_balance,
-      } = await getUidInviter(inviteCode)
+      const { inviter_id, inviter_username, inviter_telegram_id } =
+        await getUidInviter(inviteCode)
 
       ctx.session.inviter = inviter_id
 
@@ -133,7 +128,7 @@ export const subscriptionMiddleware = async (
         })
         await bot.telegram.sendMessage(
           '@neuro_blogger_group',
-          `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}. По реферальной ссылке от: @${inviter_username}.\n🆔 Уровень аватара: ${newCount}\n🎁 Получил(a) бонус в размере 100⭐️ на свой баланс.\nСпасибо за участие в нашей программе!`
+          `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}. По реферальной ссылке от: @${inviter_username}.`
         )
       }
     } else {
@@ -145,7 +140,7 @@ export const subscriptionMiddleware = async (
 
       await bot.telegram.sendMessage(
         '@neuro_blogger_group',
-        `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}.\n🆔 Уровень аватара: ${count}`
+        `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}.`
       )
     }
 
