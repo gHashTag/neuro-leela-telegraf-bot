@@ -19,7 +19,7 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
       let newSubscription: Subscription = 'stars'
 
       if (isDev) {
-        newCount = 37
+        newCount = 2
         newSubscription = 'stars'
       } else {
         const { count, subscription } = await getReferalsCount(telegram_id)

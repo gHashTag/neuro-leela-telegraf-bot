@@ -89,7 +89,8 @@ export const subscriptionMiddleware = async (
     const finalUsername = username || first_name || telegram_id.toString()
 
     // Проверяем, существует ли пользователь
-    const existingUser = await getUserByTelegramId(telegram_id.toString())
+    const existingUser = await getUserByTelegramId(inviteCode)
+    console.log('existingUser', existingUser)
 
     if (existingUser) {
       console.log('User already registered:', telegram_id)
