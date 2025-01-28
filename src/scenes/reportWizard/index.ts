@@ -71,7 +71,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
       )
 
       await ctx.reply(ai_response, {
-        parse_mode: 'HTML',
+        parse_mode: 'Markdown',
         ...step_callback(isRu),
       })
     } else {
@@ -107,26 +107,3 @@ reportWizard.action('make_next_move', async ctx => {
     return ctx.scene.leave()
   }
 })
-
-// reportWizard.leave(async ctx => {
-//   console.log('CASE: reportWizard.leave')
-//   const isRu = isRussian(ctx)
-
-//   if (ctx.message && 'text' in ctx.message) {
-//     const { ai_response } = await sendAIResponse(
-//       ctx.from.id.toString(),
-//       'asst_PeA6kj3k9LmspxDVRrnPa8ux',
-//       ctx.message.text,
-//       'ru',
-//       ctx.session.fullName
-//     )
-//     await ctx.telegram.sendChatAction(ctx.from.id, 'typing')
-//     await ctx.reply(ai_response, {
-//       parse_mode: 'HTML',
-//       ...step_callback(isRu),
-//     })
-//   } else {
-//     return ctx.scene.enter('rollDiceWizard')
-//   }
-//   return ctx.scene.enter('rollDiceWizard')
-// })

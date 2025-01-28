@@ -97,7 +97,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
     return ctx.wizard.next()
   },
   async ctx => {
-    console.log('CASE: subscriptionScene.next', ctx)
+    console.log('CASE: subscriptionScene.next')
     if ('callback_query' in ctx.update && 'data' in ctx.update.callback_query) {
       const text = ctx.update.callback_query.data
       console.log('text subscriptionScene.next!!!', text)

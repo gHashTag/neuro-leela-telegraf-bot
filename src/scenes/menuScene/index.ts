@@ -5,6 +5,7 @@ import { levels, mainMenu } from '../../menu/mainMenu'
 import { getReferalsCount } from '@/core/supabase/getReferalsCount'
 import { isDev, isRussian } from '@/helpers'
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram'
+import { getPlanNumber } from '@/core/supabase'
 
 export const menuScene = new Scenes.WizardScene<MyContext>(
   'menuScene',
@@ -18,7 +19,7 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
       let newSubscription: Subscription = 'stars'
 
       if (isDev) {
-        newCount = 4
+        newCount = 37
         newSubscription = 'stars'
       } else {
         const { count, subscription } = await getReferalsCount(telegram_id)
@@ -28,69 +29,65 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
         newSubscription = subscription
       }
 
+      const { loka, gameSteps } = await getPlanNumber(telegram_id)
+      console.log('loka', loka)
+      console.log('gameSteps', gameSteps)
+
+      const inlineKeyboard: InlineKeyboardButton[][] = []
+
+      if (gameSteps < newCount) {
+        inlineKeyboard.push([
+          {
+            text: isRu ? '🎲 Сделать следующий ход' : '🎲 Make the next move',
+            callback_data: 'make_next_move',
+          },
+        ])
+      }
+
+      inlineKeyboard.push(
+        [
+          {
+            text: isRu ? '🚀 Открыть квест' : '🚀 Open quest',
+            web_app: {
+              url: `https://neuro-blogger-web-u14194.vm.elestio.app/leelachakra/${loka}`,
+            },
+          },
+        ],
+        [
+          {
+            text: isRu
+              ? '🔓 Разблокировать все функции'
+              : '🔓 Unlock all features',
+            callback_data: 'unlock_features',
+          },
+        ]
+      )
+
+      const message = isRu
+        ? `🚀 Чтобы сделать следующий ход, пригласите друга или разблокируйте все функции! 🌟\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
+        : `🚀 To make the next move, invite a friend or unlock all features! 🌟\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
+
       const menu = await mainMenu(isRu, newCount, newSubscription)
 
-      const url = `https://neuro-blogger-web-u14194.vm.elestio.app/neuro_sage/1/1/1/1/1/${
-        newCount + 1
-      }`
+      await ctx.reply(message, {
+        reply_markup: {
+          inline_keyboard: inlineKeyboard,
+        },
+        parse_mode: 'HTML',
+      })
 
-      if (newCount <= 10) {
-        const message = isRu
-          ? `🚀 Чтобы сделать следующий ход, пригласите друга или разблокируйте все функции! 🌟\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
-          : `🚀 To make the next move, invite a friend or unlock all features! 🌟\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
+      await ctx.reply(
+        isRu
+          ? `Ссылка для приглашения друзей 👇🏻`
+          : `Invite link for friends 👇🏻`,
+        menu
+      )
+      const botUsername = ctx.botInfo.username
 
-        const inlineKeyboard = [
-          [
-            {
-              text: isRu ? '🎲 Сделать следующий ход' : '🎲 Make the next move',
-              callback_data: 'make_next_move',
-            },
-          ],
-          [
-            {
-              text: isRu ? '🚀 Открыть квест' : '🚀 Open quest',
-              web_app: {
-                url,
-              },
-            },
-          ],
-          [
-            {
-              text: isRu
-                ? '🔓 Разблокировать все функции'
-                : '🔓 Unlock all features',
-              callback_data: 'unlock_features',
-            },
-          ],
-        ]
+      const linkText = `<a href="https://t.me/${botUsername}?start=${telegram_id}">https://t.me/${botUsername}?start=${telegram_id}</a>`
 
-        // Отправка сообщения с клавиатурой
-        await ctx.reply(message, {
-          reply_markup: {
-            inline_keyboard: inlineKeyboard as InlineKeyboardButton[][],
-          },
-          parse_mode: 'HTML',
-        })
-
-        await ctx.reply(
-          isRu
-            ? `Ссылка для приглашения друзей 👇🏻`
-            : `Invite link for friends 👇🏻`,
-          menu
-        )
-        const botUsername = ctx.botInfo.username
-
-        const linkText = `<a href="https://t.me/${botUsername}?start=${telegram_id}">https://t.me/${botUsername}?start=${telegram_id}</a>`
-
-        await ctx.reply(linkText, { parse_mode: 'HTML' })
-        return ctx.wizard.next()
-      } else {
-        const message = isRu
-          ? '🏠 Главное меню\nВыберите нужный раздел 👇'
-          : '🏠 Main menu\nChoose the section 👇'
-        await ctx.reply(message, menu)
-        return ctx.wizard.next()
-      }
+      await ctx.reply(linkText, { parse_mode: 'HTML' })
+      return ctx.wizard.next()
     } catch (error) {
       console.error('Error in menu command:', error)
       await sendGenericErrorMessage(ctx, isRu, error)

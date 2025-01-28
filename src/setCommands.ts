@@ -16,13 +16,13 @@ export function setBotCommands(bot: Telegraf<MyContext>) {
       command: 'invite',
       description: '👥 Invite a friend / Пригласить друга',
     },
-    {
-      command: 'buy',
-      description: '💵 Top up balance / Пополнить баланс',
-    },
-    {
-      command: 'balance',
-      description: '💰 Balance / Баланс',
-    },
+    // {
+    //   command: 'buy',
+    //   description: '💵 Top up balance / Пополнить баланс',
+    // },
+    // {
+    //   command: 'balance',
+    //   description: '💰 Balance / Баланс',
+    // },
   ])
 }
