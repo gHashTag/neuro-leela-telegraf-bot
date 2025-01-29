@@ -12,4 +12,5 @@ export async function startMenu(ctx: MyContext, isRu: boolean) {
       // ],
     ]).resize()
   )
+  return
 }

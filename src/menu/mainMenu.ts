@@ -87,6 +87,10 @@ export const levels: Record<number, Level> = {
     title_ru: '💫 Оформление подписки',
     title_en: '💫 Subscription',
   },
+  104: {
+    title_ru: '🏠 Главное меню',
+    title_en: '🏠 Main menu',
+  },
 }
 
 export async function mainMenu(

@@ -131,5 +131,8 @@ const handleMenu = async (ctx: MyContext, text: string) => {
   } else if (text === (isRu ? levels[102].title_ru : levels[102].title_en)) {
     console.log('CASE: 👥 Пригласить друга')
     await ctx.scene.enter('inviteCommand')
+  } else if (text === (isRu ? levels[104].title_ru : levels[104].title_en)) {
+    console.log('CASE: 🏠 Главное меню')
+    await ctx.scene.enter('menuScene')
   }
 }
