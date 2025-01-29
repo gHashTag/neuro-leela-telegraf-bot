@@ -6,10 +6,10 @@ export async function startMenu(ctx: MyContext, isRu: boolean) {
     isRu ? 'Выберите действие в меню:' : 'Choose an action in the menu:',
     Markup.keyboard([
       [Markup.button.text(isRu ? '🏠 Главное меню' : '🏠 Main menu')],
-      [
-        Markup.button.text(isRu ? '💎 Пополнить баланс' : '💎 Top up balance'),
-        Markup.button.text(isRu ? '🤑 Баланс' : '🤑 Balance'),
-      ],
+      // [
+      //   Markup.button.text(isRu ? '💎 Пополнить баланс' : '💎 Top up balance'),
+      //   Markup.button.text(isRu ? '🤑 Баланс' : '🤑 Balance'),
+      // ],
     ]).resize()
   )
 }

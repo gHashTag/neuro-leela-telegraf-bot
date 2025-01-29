@@ -10,6 +10,7 @@ import bot from '@/core/bot'
 import { isRussian } from '@/helpers/language'
 import { getUserPhotoUrl } from './getUserPhotoUrl'
 import { verifySubscription } from './verifySubscription'
+import { startMenu } from '@/menu/startMenu'
 
 const SUBSCRIBE_CHANNEL_ID = '@leela_chakra_ai'
 const BONUS_AMOUNT = 100
@@ -53,7 +54,8 @@ export const subscriptionMiddleware = async (
     console.log('existingUser', existingUser)
 
     if (existingUser) {
-      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID, next)
+      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID)
+      await startMenu(ctx, isRu)
       return
     }
 
@@ -66,17 +68,17 @@ export const subscriptionMiddleware = async (
 
       ctx.session.inviter = userData.user_id
 
-      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID, next)
+      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID)
 
-      if (userData.telegram_id) {
+      if (ctx.session.inviteCode) {
         await bot.telegram.sendMessage(
-          inviteCode,
+          ctx.session.inviteCode,
           isRu
             ? `🔗 Новый пользователь зарегистрировался по вашей ссылке: @${finalUsername}.\nЗа каждого друга, который зарегистрировался по вашей ссылке, вы получаете бесплатный ход в игре!`
             : `🔗 New user registered through your link: @${finalUsername}.\nFor each friend you invite, you get a free move in the game!`
         )
         await incrementBalance({
-          telegram_id: inviteCode,
+          telegram_id: ctx.session.inviteCode,
           amount: BONUS_AMOUNT,
         })
         await bot.telegram.sendMessage(
@@ -87,7 +89,7 @@ export const subscriptionMiddleware = async (
         )
       }
     } else {
-      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID, next)
+      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID)
       const { count } = await getReferalsCountAndUserData(inviteCode)
       await bot.telegram.sendMessage(
         SUBSCRIBE_CHANNEL_ID,

@@ -94,10 +94,6 @@ export async function mainMenu(
   inviteCount: number,
   subscription: Subscription
 ): Promise<Markup.Markup<ReplyKeyboardMarkup>> {
-  console.log('CASE: mainMenu')
-  console.log('inviteCount', inviteCount)
-  console.log('subscription', subscription)
-
   // Определяем, имеет ли пользователь доступ ко всем уровням
   // const hasFullAccess = [
   //   'neurobase',
