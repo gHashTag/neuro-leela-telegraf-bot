@@ -10,7 +10,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
     const message = isRu
       ? `<b>💫 Для получения полного доступа ко всем функциям, выберите одну из предложенных месячных подписок:</b>
 
-<b>🎮 Игра Лила</b>
+<b>🎮 Игра Лила - Цена 3333 ⭐️</b>
 - Доступ к боту игры Нейро Лила и образовательному курсу
 - Введение в основы игры Лила и ведической философии
 - Доступ к 9-ти видеоурокам, объясняющим правила и символизм игры
@@ -19,7 +19,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
 - Интеллектуальный ИИ помощник
 
 
-<b>🕉 Игра в группе</b>
+<b>🕉 Игра в группе - Цена 6666 ⭐️</b>
 - Встреча длительностью 1,5 часа, где вы погрузитесь в мир Нейро Лила
 - Испытайте уникальный игровой опыт, объединяющий ведическую философию и передовые технологии
 - Развивайте когнитивные навыки через увлекательные и познавательные задания
@@ -27,7 +27,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
 - Получайте советы и подсказки от ИИ-помощника, чтобы улучшить свои результаты
 - Присоединяйтесь к сообществу единомышленников и делитесь опытом
 
-<b>⭐️ Ментор</b>
+<b>⭐️ Ментор - Цена 66666 ⭐️</b>
 - Индивидуальные сессии 1 на 1: четыре персональные встречи с опытным ментором, который поможет вам раскрыть ваш потенциал
 - Персонализированное обучение, полностью адаптированное под ваши уникальные цели и потребности
 - Интерактивная игра с ментором для практического применения знаний и навыков в реальных ситуациях
@@ -39,7 +39,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
 `
       : `<b>💫 To get full access to all functions, choose one of the proposed monthly subscriptions:</b>
 
-<b>🎮 Game Leela</b>
+<b>🎮 Game Leela - Price 3333 ⭐️</b>
 - Access to the bot and educational course
 - Introduction to the basics of the Leela game and Vedantic philosophy
 - Access to 9 video lessons explaining the rules and symbolism of the game
@@ -48,7 +48,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
 - Intelligent AI assistant
 
 
-<b>🕉 Game in group</b>
+<b>🕉 Game in group - Price 6666 ⭐️</b>
 - Meeting duration of 1.5 hours, where you will immerse yourself in the world of Lilah
 - Experience a unique gaming experience that combines Vedantic philosophy and advanced technologies
 - Develop cognitive skills through engaging and educational tasks
@@ -57,7 +57,7 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
 - Join the community of like-minded people and share your experience
 
 
-<b>⭐️ Mentor</b>  
+<b>⭐️ Mentor - Price 66666 ⭐️</b>  
 - Individual sessions 1 on 1: four personal meetings with an experienced mentor who will help you develop your potential
 - Personalized training, fully adapted to your unique goals and needs
 - Interactive game with a mentor to apply knowledge and skills in real-life situations
