@@ -1,4 +1,4 @@
-import { getReferalsCount } from '@/core/supabase'
+import { getReferalsCountAndUserData } from '@/core/supabase'
 import { MyContext } from '../interfaces'
 import { mainMenu } from './mainMenu'
 
@@ -8,7 +8,7 @@ export const sendGenerationCancelledMessage = async (
 ) => {
   const message = isRu ? '❌ Генерация отменена' : '❌ Generation cancelled'
   const telegram_id = ctx.from?.id?.toString() || ''
-  const { count, subscription } = await getReferalsCount(telegram_id)
+  const { count, subscription } = await getReferalsCountAndUserData(telegram_id)
   await ctx.reply(message, {
     reply_markup: {
       keyboard: (

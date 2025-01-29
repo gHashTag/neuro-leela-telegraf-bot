@@ -1,7 +1,7 @@
 import { mainMenu } from '@/menu'
 import { MyContext } from '../../interfaces'
 import { errorMessage } from '@/helpers/error'
-import { getReferalsCount } from '@/core/supabase'
+import { getReferalsCountAndUserData } from '@/core/supabase'
 
 export async function handleQuestRules(ctx: MyContext) {
   try {
@@ -701,9 +701,11 @@ export async function handleQuestComplete(ctx: MyContext) {
   try {
     const isRu = ctx.from?.language_code === 'ru'
     const telegram_id = ctx.from?.id?.toString() || ''
-    const { count, subscription } = (await getReferalsCount(telegram_id)) || {
-      count: 0,
-      subscription: 'stars',
+    const { count, subscription, isExist } = await getReferalsCountAndUserData(
+      telegram_id
+    )
+    if (!isExist) {
+      await mainMenu(isRu, count, subscription)
     }
     const message = isRu
       ? `🎉 НейроКвест завершен! 🎉

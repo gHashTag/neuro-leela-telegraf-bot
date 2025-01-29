@@ -1,63 +1,25 @@
-import { Markup } from 'telegraf'
 import {
   createUser,
   getUserByTelegramId,
   incrementBalance,
-  getUidInviter,
+  getReferalsCountAndUserData,
 } from '@/core/supabase'
 import { CreateUserData, MyContext } from '@/interfaces'
 import bot from '@/core/bot'
 
 import { isRussian } from '@/helpers/language'
+import { getUserPhotoUrl } from './getUserPhotoUrl'
+import { verifySubscription } from './verifySubscription'
 
-// Проверка подписки с использованием chat-members
-async function checkSubscription(ctx: MyContext): Promise<boolean> {
-  try {
-    if (!ctx.from?.id) {
-      console.error('User ID is undefined')
-      throw new Error('User ID is undefined')
-    }
-    const isRu = isRussian(ctx)
-    const chatMember = await bot.telegram.getChatMember(
-      isRu ? '@leela_chakra_ai' : '@leela_chakra_ai',
-      ctx.from?.id
-    )
-    console.log('chatMember', chatMember)
-    return ['member', 'administrator', 'creator'].includes(chatMember.status)
-  } catch (error) {
-    console.error('Error checking subscription:', error)
-    throw error
-  }
-}
+const SUBSCRIBE_CHANNEL_ID = '@leela_chakra_ai'
+const BONUS_AMOUNT = 100
 
-async function handleSubscriptionMessage(
-  ctx: MyContext,
-  language_code: string
-): Promise<void> {
-  const message =
-    language_code === 'ru'
-      ? '❗️ВНИМАНИЕ\nВы видите это сообщение потому что не подписаны на канал @neuro_blogger_group\n Группа нужна для того чтобы вы могли задать вопросы и получить помощь. Пожалуйста, подпишитесь на наш канал, чтобы продолжить использование бота и после нажатия на кнопку "Подписаться" вернитесь в бот и нажмите команду /start.'
-      : '❗️ATTENTION\nYou see this message because you are not subscribed to the channel @neuro_blogger_group\nThe group is needed so that you can ask questions and get help. Please subscribe to our channel to continue using the bot and after clicking the "Subscribe" button, return to the bot and click the /start command.'
-
-  await ctx.reply(message, {
-    reply_markup: Markup.inlineKeyboard([
-      Markup.button.url(
-        language_code === 'ru' ? 'Подписаться' : 'Subscribe',
-        'https://t.me/leela_chakra_ai'
-      ),
-    ]).reply_markup,
-  })
-}
-
-// Основной middleware
 export const subscriptionMiddleware = async (
   ctx: MyContext,
   next: () => Promise<void>
 ): Promise<void> => {
   const isRu = isRussian(ctx)
-  console.log('ctx', ctx)
   try {
-    // Проверяем, что команда /start
     if (
       !ctx.message ||
       !('text' in ctx.message) ||
@@ -72,11 +34,10 @@ export const subscriptionMiddleware = async (
       return
     }
 
-    // Получаем inviter_id из start параметра
     const inviteCode = ctx.message.text.split(' ')[1]
-
     console.log('inviteCode', inviteCode)
     ctx.session.inviteCode = inviteCode
+
     const {
       username,
       id: telegram_id,
@@ -88,60 +49,49 @@ export const subscriptionMiddleware = async (
 
     const finalUsername = username || first_name || telegram_id.toString()
 
-    // Проверяем, существует ли пользователь
     const existingUser = await getUserByTelegramId(telegram_id.toString())
     console.log('existingUser', existingUser)
 
     if (existingUser) {
-      console.log('User already registered:', telegram_id)
-      const isSubscribed = await checkSubscription(ctx)
-      if (!isSubscribed) {
-        await handleSubscriptionMessage(ctx, language_code)
-        return
-      }
-      return await next()
+      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID, next)
+      return
     }
+
     const photo_url = await getUserPhotoUrl(ctx, telegram_id)
-    // Создаем пользователя с inviter из start параметра
 
     if (ctx.session.inviteCode) {
-      const { inviter_id, inviter_username, inviter_telegram_id } =
-        await getUidInviter(inviteCode)
+      const { userData } = await getReferalsCountAndUserData(
+        ctx.session.inviteCode.toString()
+      )
 
-      ctx.session.inviter = inviter_id
+      ctx.session.inviter = userData.user_id
 
-      const isSubscribed = await checkSubscription(ctx)
-      if (!isSubscribed) {
-        await handleSubscriptionMessage(ctx, language_code)
-        return
-      }
+      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID, next)
 
-      if (inviter_telegram_id) {
+      if (userData.telegram_id) {
         await bot.telegram.sendMessage(
-          inviter_telegram_id,
+          inviteCode,
           isRu
-            ? `🔗 Новый пользователь зарегистрировался по вашей ссылке: @${finalUsername}.`
-            : `🔗 New user registered through your link: @${finalUsername}.`
+            ? `🔗 Новый пользователь зарегистрировался по вашей ссылке: @${finalUsername}.\nЗа каждого друга, который зарегистрировался по вашей ссылке, вы получаете бесплатный ход в игре!`
+            : `🔗 New user registered through your link: @${finalUsername}.\nFor each friend you invite, you get a free move in the game!`
         )
         await incrementBalance({
-          telegram_id: inviter_telegram_id.toString(),
-          amount: 100,
+          telegram_id: inviteCode,
+          amount: BONUS_AMOUNT,
         })
         await bot.telegram.sendMessage(
-          '@neuro_blogger_group',
-          `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}. По реферальной ссылке от: @${inviter_username}.`
+          SUBSCRIBE_CHANNEL_ID,
+          isRu
+            ? `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}. По реферальной ссылке от: @${userData.username}.\nЗа каждого друга, который зарегистрировался по вашей ссылке, вы получаете бесплатный ход в игре!\nСпасибо за участие в нашей программе!`
+            : `🔗 New user registered in the bot: @${finalUsername}. By referral link from: @${userData.username}.\nFor each friend who registered through your link, you get a free move in the game!\nThank you for participating in our program!`
         )
       }
     } else {
-      const isSubscribed = await checkSubscription(ctx)
-      if (!isSubscribed) {
-        await handleSubscriptionMessage(ctx, language_code)
-        return
-      }
-
+      await verifySubscription(ctx, language_code, SUBSCRIBE_CHANNEL_ID, next)
+      const { count } = await getReferalsCountAndUserData(inviteCode)
       await bot.telegram.sendMessage(
-        '@neuro_blogger_group',
-        `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}.`
+        SUBSCRIBE_CHANNEL_ID,
+        `🔗 Новый пользователь зарегистрировался в боте: @${finalUsername}.\n🆔 Уровень аватара: ${count}.`
       )
     }
 
@@ -168,42 +118,6 @@ export const subscriptionMiddleware = async (
     await next()
   } catch (error) {
     console.error('Critical error in subscriptionMiddleware:', error)
-    throw error
-  }
-}
-
-async function getUserPhotoUrl(
-  ctx: MyContext,
-  userId: number
-): Promise<string | null> {
-  try {
-    // Получаем массив фотографий профиля
-    const userPhotos = await ctx.telegram.getUserProfilePhotos(userId)
-
-    // Проверяем есть ли фотографии
-    if (userPhotos.total_count === 0) {
-      console.log('No photos found')
-      return null
-    }
-
-    // Получаем файл самого большого размера фото
-    const photoSizes = userPhotos.photos[0]
-    const largestPhoto = photoSizes[photoSizes.length - 1]
-
-    const file = await ctx.telegram.getFile(largestPhoto.file_id)
-
-    if (!file.file_path) {
-      console.log('No file_path in response')
-      return null
-    }
-
-    // Формируем URL фотографии
-    const photoUrl = `https://api.telegram.org/file/bot${ctx.telegram.token}/${file.file_path}`
-    console.log('Generated photo URL:', photoUrl)
-
-    return photoUrl
-  } catch (error) {
-    console.error('Error getting user profile photo:', error)
     throw error
   }
 }

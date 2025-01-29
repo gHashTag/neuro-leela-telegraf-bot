@@ -1,5 +1,5 @@
 import { MyContext } from '@/interfaces'
-import { getReferalsCount, setAspectRatio } from '@/core/supabase'
+import { getReferalsCountAndUserData, setAspectRatio } from '@/core/supabase'
 import { isRussian } from '@/helpers/language'
 import { mainMenu } from '@/menu'
 
@@ -18,7 +18,9 @@ export async function handleSizeSelection(ctx: MyContext, size: string) {
   } else {
     console.log('CASE: Неизвестный режим')
     const telegram_id = ctx.from?.id?.toString() || ''
-    const { count, subscription } = await getReferalsCount(telegram_id)
+    const { count, subscription } = await getReferalsCountAndUserData(
+      telegram_id.toString()
+    )
     await mainMenu(isRu, count, subscription)
   }
 }

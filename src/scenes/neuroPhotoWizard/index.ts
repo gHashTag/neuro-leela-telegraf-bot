@@ -9,7 +9,7 @@ import {
 import { generateNeuroImage } from '@/services/generateNeuroImage'
 import {
   getLatestUserModel,
-  getReferalsCount,
+  getReferalsCountAndUserData,
   getUserBalance,
 } from '@/core/supabase'
 import { mainMenu, sendPhotoDescriptionRequest } from '@/menu'
@@ -49,7 +49,13 @@ export const neuroPhotoWizard = new Scenes.WizardScene<MyContext>(
     const userModel = await getLatestUserModel(userId)
 
     const telegram_id = ctx.from?.id?.toString() || ''
-    const { count, subscription } = await getReferalsCount(telegram_id)
+    const { count, subscription, isExist } = await getReferalsCountAndUserData(
+      telegram_id
+    )
+
+    if (!isExist) {
+      await mainMenu(isRu, count, subscription)
+    }
 
     if (!userModel || !userModel.model_url) {
       await ctx.reply(

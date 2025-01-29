@@ -1,5 +1,5 @@
 import { Scenes } from 'telegraf'
-import { getReferalsCount } from '../../core/supabase'
+import { getReferalsCountAndUserData } from '../../core/supabase'
 import { MyContext } from '../../interfaces'
 
 export const inviteScene = new Scenes.BaseScene<MyContext>('inviteScene')
@@ -12,7 +12,7 @@ inviteScene.enter(async ctx => {
   const telegram_id = ctx.from?.id?.toString() || ''
 
   try {
-    const { count } = await getReferalsCount(telegram_id)
+    const { count } = await getReferalsCountAndUserData(telegram_id)
 
     const introText = isRu
       ? `🎁 Пригласите друга и откройте для себя новые возможности! Отправьте ему эту ссылку, и пусть он присоединится к нашему сообществу. 

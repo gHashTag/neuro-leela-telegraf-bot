@@ -10,7 +10,7 @@ import { generateNeuroImage } from './services/generateNeuroImage'
 
 import { handleSizeSelection } from './handlers'
 import { levels, mainMenu } from './menu'
-import { getReferalsCount } from './core/supabase'
+import { getReferalsCountAndUserData } from './core/supabase'
 
 export const myComposer = new Composer<MyContext>()
 
@@ -233,7 +233,7 @@ myComposer.hears(/^(Отмена|отмена|Cancel|cancel)$/i, async ctx => {
   console.log('CASE: Отмена')
   const isRu = isRussian(ctx)
   const telegram_id = ctx.from?.id?.toString() || ''
-  const { count, subscription } = await getReferalsCount(telegram_id)
+  const { count, subscription } = await getReferalsCountAndUserData(telegram_id)
   await mainMenu(isRu, count, subscription)
   return ctx.scene.leave()
 })

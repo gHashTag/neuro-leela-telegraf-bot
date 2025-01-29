@@ -1,6 +1,6 @@
 import { MyContext } from '@/interfaces'
 import {
-  getReferalsCount,
+  getReferalsCountAndUserData,
   getUserBalance,
   updateUserBalance,
 } from '@/core/supabase'
@@ -20,9 +20,11 @@ export async function refundUser(ctx: MyContext, paymentAmount: number) {
   // Отправляем сообщение пользователю
   const isRu = ctx.from.language_code === 'ru'
   const telegram_id = ctx.from?.id?.toString() || ''
-  const { count, subscription } = (await getReferalsCount(telegram_id)) || {
-    count: 0,
-    subscription: 'stars',
+  const { count, subscription, isExist } = await getReferalsCountAndUserData(
+    telegram_id
+  )
+  if (!isExist) {
+    await mainMenu(isRu, count, subscription)
   }
   await ctx.reply(
     isRu

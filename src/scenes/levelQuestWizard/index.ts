@@ -18,7 +18,7 @@ import {
 import { MyContext } from '../../interfaces'
 import { isRussian } from '@/helpers'
 import { mainMenu } from '@/menu'
-import { getReferalsCount } from '@/core/supabase'
+import { getReferalsCountAndUserData } from '@/core/supabase'
 
 // Создаем сцены для каждого шага
 const createStepScene = (
@@ -29,9 +29,15 @@ const createStepScene = (
   const scene = new Scenes.BaseScene<MyContext>(`step${stepNumber}`)
   scene.enter(async ctx => {
     const telegram_id = ctx.from?.id?.toString() || ''
-    const { count, subscription } = await getReferalsCount(telegram_id)
-    await handler(ctx)
+    const { count, subscription, isExist } = await getReferalsCountAndUserData(
+      telegram_id
+    )
     const isRu = isRussian(ctx)
+    if (!isExist) {
+      await mainMenu(isRu, count, subscription)
+    }
+    await handler(ctx)
+
     await ctx.reply(
       stepNumber < 12
         ? isRu

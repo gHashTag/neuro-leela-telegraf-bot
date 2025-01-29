@@ -2,7 +2,7 @@ import { Scenes } from 'telegraf'
 import { sendGenericErrorMessage } from '@/menu'
 import { MyContext, Subscription } from '../../interfaces'
 import { levels, mainMenu } from '../../menu/mainMenu'
-import { getReferalsCount } from '@/core/supabase/getReferalsCount'
+import { getReferalsCountAndUserData } from '@/core/supabase'
 import { isDev, isRussian } from '@/helpers'
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram'
 import { getPlanNumber } from '@/core/supabase'
@@ -22,16 +22,14 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
         newCount = 2
         newSubscription = 'stars'
       } else {
-        const { count, subscription } = await getReferalsCount(telegram_id)
-        console.log('count', count)
-        console.log('subscription', subscription)
+        const { count, subscription } = await getReferalsCountAndUserData(
+          telegram_id
+        )
         newCount = count
         newSubscription = subscription
       }
 
       const { loka, gameSteps } = await getPlanNumber(telegram_id)
-      console.log('loka', loka)
-      console.log('gameSteps', gameSteps)
 
       const inlineKeyboard: InlineKeyboardButton[][] = []
 
