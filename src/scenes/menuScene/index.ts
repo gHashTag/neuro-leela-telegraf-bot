@@ -62,8 +62,8 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
       )
 
       const message = isRu
-        ? `🚀 Чтобы сделать следующий ход, пригласите друга или разблокируйте все функции! 🌟\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
-        : `🚀 To make the next move, invite a friend or unlock all features! 🌟\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
+        ? `🕉 Если вы не видите кнопку 🎲 Сделать следующий ход, то пригласите друга или разблокируйте все функции оформив подписку!\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
+        : `🕉 If you don't see the 🎲 Make the next move button, invite a friend or unlock all features by subscribing!\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
 
       const menu = await mainMenu(isRu, newCount, newSubscription)
 

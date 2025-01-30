@@ -57,6 +57,10 @@ export const rollDiceWizard = new Scenes.WizardScene<MyContext>(
     const roll = ctx.session.roll
 
     if (roll === 6) {
+      const user = await getUserByTelegramId(ctx.from.id.toString())
+      if (!user.is_leela_start) {
+        await setLeelaStart(ctx.from.id.toString(), true)
+      }
       return ctx.scene.enter('makeNextMoveWizard')
     } else {
       return ctx.scene.enter('rollDiceWizard')
