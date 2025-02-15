@@ -99,40 +99,40 @@ export async function mainMenu(
   subscription: Subscription
 ): Promise<Markup.Markup<ReplyKeyboardMarkup>> {
   // Определяем, имеет ли пользователь доступ ко всем уровням
-  // const hasFullAccess = [
-  //   'neurobase',
-  //   'neuromeeting',
-  //   'neuroblogger',
-  //   'neurotester',
-  // ].includes(subscription)
+  const hasFullAccess = [
+    'game_leela',
+    'game_in_group',
+    'mentor_game',
+    'neurotester',
+  ].includes(subscription)
 
-  // const availableLevels = Object.keys(levels)
-  //   .filter(level => hasFullAccess || parseInt(level) <= inviteCount)
-  //   .map(level => levels[parseInt(level)])
-  // console.log('availableLevels', availableLevels)
+  const availableLevels = Object.keys(levels)
+    .filter(level => hasFullAccess || parseInt(level) <= inviteCount)
+    .map(level => levels[parseInt(level)])
+  console.log('availableLevels', availableLevels)
 
   const subscriptionButton = isRu ? levels[103].title_ru : levels[103].title_en
 
-  // if (availableLevels.length === 0) {
-  //   console.warn(
-  //     'No available levels for the current invite count and subscription status.'
-  //   )
-  //   return Markup.keyboard([[Markup.button.text(subscriptionButton)]]).resize()
-  // }
+  if (availableLevels.length === 0) {
+    console.warn(
+      'No available levels for the current invite count and subscription status.'
+    )
+    return Markup.keyboard([[Markup.button.text(subscriptionButton)]]).resize()
+  }
 
-  // const buttons = Markup.keyboard([
-  //   [Markup.button.text(subscriptionButton)],
-  // ]).resize()
-  // console.log('buttons', buttons)
+  // Создаем кнопки для каждого доступного уровня
+  const levelButtons = availableLevels.map(level =>
+    Markup.button.text(isRu ? level.title_ru : level.title_en)
+  )
 
   // Разбиваем кнопки на строки по две кнопки
-  // const buttonRows = []
-  // for (let i = 0; i < buttons.length; i += 2) {
-  //   buttonRows.push(buttons.slice(i, i + 2))
-  // }
+  const buttonRows = []
+  for (let i = 0; i < levelButtons.length; i += 2) {
+    buttonRows.push(levelButtons.slice(i, i + 2))
+  }
 
-  // Добавляем дополнительные кнопки в конце
-  // buttonRows.push([Markup.button.text(subscriptionButton)])
+  // Добавляем кнопку подписки в конце
+  buttonRows.push([Markup.button.text(subscriptionButton)])
 
-  return Markup.keyboard([[Markup.button.text(subscriptionButton)]]).resize()
+  return Markup.keyboard(buttonRows).resize()
 }

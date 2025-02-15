@@ -1,6 +1,5 @@
 import { MERCHANT_LOGIN, PASSWORD1, RESULT_URL2 } from '@/config'
 
-import { levels } from '@/menu/mainMenu'
 import md5 from 'md5'
 
 export const merchantLogin = MERCHANT_LOGIN
@@ -9,11 +8,9 @@ export const password1 = PASSWORD1
 export const description = 'Покупка звезд'
 
 export const subscriptionTitles = (isRu: boolean) => ({
-  neurophoto: isRu ? levels[2].title_ru : levels[2].title_en,
-  neurobase: isRu ? '📚 НейроБаза' : '📚 NeuroBase',
-  neuromeeting: isRu ? '🧠 НейроВстреча' : '🧠 NeuroMeeting',
-  neuroblogger: isRu ? '🤖 НейроБлогер' : '🤖 NeuroBlogger',
-  //   neuromentor: isRu ? '🦸🏼‍♂️ НейроМентор' : '🦸🏼‍♂️ NeuroMentor',
+  game_leela: isRu ? '🎮 Игра Лила' : '🎮 Game Leela',
+  game_in_group: isRu ? '🧠 Игра в группе' : '🧠 Game in group',
+  mentor_game: isRu ? '🤖 Ментор' : '🤖 Mentor',
 })
 
 export const resultUrl2 = RESULT_URL2

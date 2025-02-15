@@ -1,4 +1,5 @@
 import { MyContext } from '@/interfaces'
+import { subscriptionTitles } from '@/scenes/getRuBillWizard/helper'
 
 interface BuyParams {
   ctx: MyContext
@@ -7,12 +8,6 @@ interface BuyParams {
 
 export async function handleBuySubscription({ ctx, isRu }: BuyParams) {
   try {
-    const subscriptionTitles = {
-      game_leela: isRu ? '🎮 Игра Лила' : '🎮 Game Leela',
-      game_in_group: isRu ? '🧠 Игра в группе' : '🧠 Game in group',
-      mentor_game: isRu ? '🤖 Ментор' : '🤖 Mentor',
-    }
-
     const subscriptionDescriptions = {
       game_leela: isRu ? 'Самостоятельное обучение.' : 'Self-study.',
       game_in_group: isRu ? 'Индивидуальная встреча.' : 'Individual meeting.',
@@ -30,7 +25,7 @@ export async function handleBuySubscription({ ctx, isRu }: BuyParams) {
     const subscriptionType = ctx.session.subscription
     const amount = subscriptionStarAmounts[subscriptionType]
 
-    const title = subscriptionTitles[subscriptionType] || `${amount} ⭐️`
+    const title = subscriptionTitles(isRu)[subscriptionType] || `${amount} ⭐️`
     const description =
       subscriptionDescriptions[subscriptionType] ||
       (isRu

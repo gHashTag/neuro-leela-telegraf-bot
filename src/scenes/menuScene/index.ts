@@ -1,9 +1,9 @@
 import { Scenes } from 'telegraf'
 import { sendGenericErrorMessage } from '@/menu'
 import { MyContext, Subscription } from '../../interfaces'
-import { levels, mainMenu } from '../../menu/mainMenu'
+import { levels } from '../../menu/mainMenu'
 import { getReferalsCountAndUserData } from '@/core/supabase'
-import { isDev, isRussian } from '@/helpers'
+import { isDev, isRussian, checkFullAccess } from '@/helpers'
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram'
 import { getPlanNumber } from '@/core/supabase'
 
@@ -19,8 +19,8 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
       let newSubscription: Subscription = 'stars'
 
       if (isDev) {
-        newCount = 2
-        newSubscription = 'stars'
+        newCount = 1
+        newSubscription = 'game_leela'
       } else {
         const { count, subscription } = await getReferalsCountAndUserData(
           telegram_id
@@ -32,40 +32,41 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
       const { loka, gameSteps } = await getPlanNumber(telegram_id)
 
       const inlineKeyboard: InlineKeyboardButton[][] = []
-
-      if (gameSteps < newCount) {
+      const fullAccess = checkFullAccess(newSubscription)
+      // Проверяем подписку и количество шагов
+      if (fullAccess || gameSteps < newCount) {
         inlineKeyboard.push([
           {
             text: isRu ? '🎲 Сделать следующий ход' : '🎲 Make the next move',
             callback_data: 'make_next_move',
           },
         ])
-      }
-
-      inlineKeyboard.push(
-        [
-          {
-            text: isRu ? '🚀 Открыть квест' : '🚀 Open quest',
-            web_app: {
-              url: `https://neuro-blogger-web-u14194.vm.elestio.app/leelachakra/${loka}`,
+      } else {
+        inlineKeyboard.push(
+          [
+            {
+              text: isRu ? '🚀 Открыть квест' : '🚀 Open quest',
+              web_app: {
+                url: `https://neuro-blogger-web-u14194.vm.elestio.app/leelachakra/${loka}`,
+              },
             },
-          },
-        ],
-        [
-          {
-            text: isRu
-              ? '🔓 Разблокировать все функции'
-              : '🔓 Unlock all features',
-            callback_data: 'unlock_features',
-          },
-        ]
-      )
+          ],
+          [
+            {
+              text: isRu
+                ? '🔓 Разблокировать все функции'
+                : '🔓 Unlock all features',
+              callback_data: 'unlock_features',
+            },
+          ]
+        )
+      }
 
       const message = isRu
         ? `🕉 Если вы не видите кнопку 🎲 Сделать следующий ход, то пригласите друга или разблокируйте все функции оформив подписку!\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
         : `🕉 If you don't see the 🎲 Make the next move button, invite a friend or unlock all features by subscribing!\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
 
-      const menu = await mainMenu(isRu, newCount, newSubscription)
+      // const menu = await mainMenu(isRu, newCount, newSubscription)
 
       await ctx.reply(message, {
         reply_markup: {
@@ -75,10 +76,7 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
       })
 
       await ctx.reply(
-        isRu
-          ? `Ссылка для приглашения друзей 👇🏻`
-          : `Invite link for friends 👇🏻`,
-        menu
+        isRu ? `Ссылка для приглашения друзей 👇🏻` : `Invite link for friends 👇🏻`
       )
       const botUsername = ctx.botInfo.username
 
