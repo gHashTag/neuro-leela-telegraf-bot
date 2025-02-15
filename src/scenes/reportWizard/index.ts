@@ -95,7 +95,7 @@ export const reportWizard = new Scenes.WizardScene<MyContext>(
 
 reportWizard.action('make_next_move', async ctx => {
   console.log('CASE 3: callback_query')
-  console.log('CASE 3: callback_query')
+
   if ('callback_query' in ctx.update) {
     const callbackQuery = ctx.update.callback_query as CallbackQuery.DataQuery
     if ('data' in callbackQuery && callbackQuery.data === 'make_next_move') {

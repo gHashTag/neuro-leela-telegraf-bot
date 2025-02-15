@@ -1,4 +1,4 @@
-import { Telegraf, Scenes, session, Middleware } from 'telegraf'
+import { Telegraf, Scenes } from 'telegraf'
 import { MyContext } from './interfaces'
 
 import { neuroQuestCommand } from './commands/neuroQuestCommand'
@@ -39,13 +39,11 @@ import {
   rollDiceWizard,
   getRuBillWizard,
 } from './scenes'
-import { subscriptionMiddleware } from '@/middlewares/subscription'
 
 import { setupLevelHandlers } from './handlers/setupLevelHandlers'
 
 import { myComposer } from './hearsHandlers'
 
-import { defaultSession } from './store'
 import { rubGetWizard } from './scenes/rubGetWizard'
 
 import { get100Command } from './commands/get100Command'
@@ -87,10 +85,6 @@ export const stage = new Scenes.Stage<MyContext>([
 ])
 
 export function registerCommands(bot: Telegraf<MyContext>) {
-  bot.use(session({ defaultSession }))
-
-  bot.use(subscriptionMiddleware as Middleware<MyContext>)
-
   setupLevelHandlers(bot as Telegraf<MyContext>)
 
   // Регистрация команд

@@ -26,6 +26,7 @@ export const subscriptionMiddleware = async (
       !('text' in ctx.message) ||
       !ctx.message.text.startsWith('/start')
     ) {
+      console.log('CASE: subscriptionMiddleware 1 /start')
       return await next()
     }
 

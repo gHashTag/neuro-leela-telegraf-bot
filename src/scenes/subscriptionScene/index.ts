@@ -68,48 +68,33 @@ export const subscriptionScene = new Scenes.WizardScene<MyContext>(
 - Long-term results and development of a strategy for achieving your ambitious goals
 `
 
-    const inlineKeyboard = Markup.inlineKeyboard([
-      [
-        {
-          text: isRu ? '🎮 Игра Лила' : '🎮 Game Leela',
-          callback_data: 'game_leela',
-        },
-      ],
-      [
-        {
-          text: isRu ? '🧠 Игра в группе' : '🕉 Game in group',
-          callback_data: 'game_in_group',
-        },
-      ],
-      [
-        {
-          text: isRu ? '🤖 Ментор' : '🤖 Mentor',
-          callback_data: 'mentor_game',
-        },
-      ],
-    ])
+    const keyboard = Markup.keyboard([
+      [Markup.button.text(isRu ? '🎮 Игра Лила' : '🎮 Game Leela')],
+      [Markup.button.text(isRu ? '🧠 Игра в группе' : '🕉 Game in group')],
+      [Markup.button.text(isRu ? '🤖 Ментор' : '🤖 Mentor')],
+    ]).resize()
 
     await ctx.reply(message, {
-      reply_markup: inlineKeyboard.reply_markup,
+      reply_markup: keyboard.reply_markup,
       parse_mode: 'HTML',
     })
-
     return ctx.wizard.next()
   },
   async ctx => {
     console.log('CASE: subscriptionScene.next')
-    if ('callback_query' in ctx.update && 'data' in ctx.update.callback_query) {
-      const text = ctx.update.callback_query.data
+    if ('message' in ctx.update && 'text' in ctx.update.message) {
+      const text = ctx.update.message.text
       console.log('text subscriptionScene.next!!!', text)
-      if (text === 'game_leela') {
+      const isRu = isRussian(ctx)
+      if (text === (isRu ? '🎮 Игра Лила' : '🎮 Game Leela')) {
         console.log('CASE: 🎮 Игра Лила')
         ctx.session.subscription = 'game_leela'
         return ctx.scene.enter('paymentScene')
-      } else if (text === 'game_in_group') {
+      } else if (text === (isRu ? '🧠 Игра в группе' : '🕉 Game in group')) {
         console.log('CASE: 🧠 НейроВстреча')
         ctx.session.subscription = 'game_in_group'
         return ctx.scene.enter('paymentScene')
-      } else if (text === 'mentor_game') {
+      } else if (text === (isRu ? '🤖 Ментор' : '🤖 Mentor')) {
         console.log('CASE: 🤖 Ментор')
         ctx.session.subscription = 'mentor_game'
         return ctx.scene.enter('paymentScene')

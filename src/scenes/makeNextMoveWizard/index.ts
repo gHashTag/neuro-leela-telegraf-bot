@@ -22,12 +22,24 @@ export const makeNextMoveWizard = new Scenes.WizardScene<MyContext>(
     console.log('CASE 1: makeNextMoveWizard.next')
     const isRu = isRussian(ctx)
     console.log('isRu', isRu)
-    const { gameStep, plan, direction } = await sendGameStep(
+    const result = await sendGameStep(
       ctx.session.roll,
       ctx.from.id.toString(),
       ctx,
       isRu
     )
+
+    if (!result) {
+      console.error('Ошибка: sendGameStep вернул null')
+      await ctx.reply(
+        isRu
+          ? 'Произошла ошибка при получении данных игры.'
+          : 'An error occurred while retrieving game data.'
+      )
+      return
+    }
+
+    const { gameStep, plan, direction } = result
 
     if (!gameStep.loka) {
       throw new Error('No loka found')

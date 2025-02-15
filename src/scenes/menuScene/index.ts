@@ -33,8 +33,11 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
 
       const inlineKeyboard: InlineKeyboardButton[][] = []
       const fullAccess = checkFullAccess(newSubscription)
+      console.log('fullAccess', fullAccess)
+      console.log('gameSteps', gameSteps)
+      console.log('newCount', newCount)
       // Проверяем подписку и количество шагов
-      if (fullAccess || gameSteps < newCount) {
+      if (fullAccess) {
         inlineKeyboard.push([
           {
             text: isRu ? '🎲 Сделать следующий ход' : '🎲 Make the next move',
@@ -53,18 +56,33 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
           ],
           [
             {
-              text: isRu
-                ? '🔓 Разблокировать все функции'
-                : '🔓 Unlock all features',
+              text: isRu ? levels[103].title_ru : levels[103].title_en,
               callback_data: 'unlock_features',
             },
           ]
         )
-      }
 
-      const message = isRu
-        ? `🕉 Если вы не видите кнопку 🎲 Сделать следующий ход, то пригласите друга или разблокируйте все функции оформив подписку!\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
-        : `🕉 If you don't see the 🎲 Make the next move button, invite a friend or unlock all features by subscribing!\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
+        await ctx.reply(
+          isRu
+            ? `Ссылка для приглашения друзей 👇🏻`
+            : `Invite link for friends 👇🏻`
+        )
+        const botUsername = ctx.botInfo.username
+
+        const linkText = `<a href="https://t.me/${botUsername}?start=${telegram_id}">https://t.me/${botUsername}?start=${telegram_id}</a>`
+
+        await ctx.reply(linkText, { parse_mode: 'HTML' })
+      }
+      let message = ''
+      if (fullAccess) {
+        message = isRu
+          ? `🕉 Нажмите на кнопку 🎲 Сделать следующий ход, чтобы продолжить квест!\n\n`
+          : `🕉 Click the 🎲 Make the next move button to continue the quest!\n\n`
+      } else {
+        message = isRu
+          ? `🕉 Если вы не видите кнопку 🎲 Сделать следующий ход, то пригласите друга или разблокируйте все функции оформив подписку!\n\n🔓 Хотите разблокировать все функции?\n💳 Оформите подписку, чтобы получить полный доступ!`
+          : `🕉 If you don't see the 🎲 Make the next move button, invite a friend or unlock all features by subscribing!\n\n🆔 Want to unlock all features?\n💳 Subscribe to get full access!`
+      }
 
       // const menu = await mainMenu(isRu, newCount, newSubscription)
 
@@ -75,14 +93,6 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
         parse_mode: 'HTML',
       })
 
-      await ctx.reply(
-        isRu ? `Ссылка для приглашения друзей 👇🏻` : `Invite link for friends 👇🏻`
-      )
-      const botUsername = ctx.botInfo.username
-
-      const linkText = `<a href="https://t.me/${botUsername}?start=${telegram_id}">https://t.me/${botUsername}?start=${telegram_id}</a>`
-
-      await ctx.reply(linkText, { parse_mode: 'HTML' })
       return ctx.wizard.next()
     } catch (error) {
       console.error('Error in menu command:', error)
@@ -127,8 +137,8 @@ const handleMenu = async (ctx: MyContext, text: string) => {
     console.log('CASE: 🤑 Баланс')
     await ctx.scene.enter('balanceCommand')
   } else if (text === (isRu ? levels[102].title_ru : levels[102].title_en)) {
-    console.log('CASE: 👥 Пригласить друга')
-    await ctx.scene.enter('inviteCommand')
+    console.log('CASE: 🔓 Разблокировать все функции')
+    await ctx.scene.enter('subscriptionScene')
   } else if (text === (isRu ? levels[104].title_ru : levels[104].title_en)) {
     console.log('CASE: 🏠 Главное меню')
     await ctx.scene.enter('menuScene')
