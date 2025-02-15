@@ -25,4 +25,11 @@ export const defaultSession: () => MySession = () => ({
   imageUrl: '',
   audioUrl: '',
   email: '',
+  subscription: 'stars',
+  inviter: '',
+  inviteCode: '',
+  fullName: '',
+  report: '',
+  ai_response: '',
+  roll: 0,
 })

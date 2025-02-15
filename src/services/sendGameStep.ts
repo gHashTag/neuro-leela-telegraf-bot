@@ -17,6 +17,11 @@ export async function sendGameStep(
   isRu: boolean
 ): Promise<{ gameStep: GameStep; plan: Plan; direction: string } | null> {
   try {
+    console.log('sendGameStep', {
+      roll,
+      telegram_id,
+      isRu,
+    })
     const url = `${
       isDev ? 'http://localhost:3000' : ELESTIO_URL
     }/game/game-step`

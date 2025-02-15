@@ -49,7 +49,7 @@ async function processPayment(
     `💫 Пользователь @${username} (ID: ${userId}) пополнил баланс на ${amount} звезд!`
   )
   await setPayments({
-    user_id: userId,
+    telegram_id: userId,
     OutSum: amount.toString(),
     InvId: payload || '',
     currency: 'STARS',
@@ -58,6 +58,7 @@ async function processPayment(
     email: ctx.session.email,
     payment_method: 'Telegram',
     subscription: 'stars',
+    bot_name: 'leela_chakra_ai_bot',
   })
 }
 
@@ -94,7 +95,7 @@ export async function handleSuccessfulPayment(ctx: MyContext) {
       `💫 Пользователь @${ctx.from.username} (ID: ${ctx.from.id}) пополнил баланс на ${stars} звезд!`
     )
     await setPayments({
-      user_id: ctx.from.id.toString(),
+      telegram_id: ctx.from.id.toString(),
       OutSum: stars.toString(),
       InvId: ctx.message?.successful_payment?.invoice_payload || '',
       currency: 'STARS',
@@ -103,6 +104,7 @@ export async function handleSuccessfulPayment(ctx: MyContext) {
       email: ctx.session.email,
       payment_method: 'Telegram',
       subscription: 'stars',
+      bot_name: 'leela_chakra_ai_bot',
     })
   }
 }

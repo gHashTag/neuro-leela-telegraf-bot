@@ -6,18 +6,12 @@ import { calculateStars } from '@/price/helpers'
 import md5 from 'md5'
 import { MERCHANT_LOGIN, PASSWORD1, RESULT_URL2 } from '@/config'
 import { handleHelpCancel } from '@/handlers'
+import { paymentOptions } from '../rubGetWizard'
 
 const merchantLogin = MERCHANT_LOGIN
 const password1 = PASSWORD1
 
 const description = 'Покупка звезд'
-
-const paymentOptions = [
-  { amount: 1999, stars: '1999' },
-  { amount: 5000, stars: '5000' },
-  { amount: 10000, stars: '10000' },
-  { amount: 10, stars: '6' },
-]
 
 const resultUrl2 = RESULT_URL2
 
@@ -163,7 +157,7 @@ emailWizard.on('text', async ctx => {
 
         // Сохранение платежа со статусом PENDING
         await setPayments({
-          user_id: userId.toString(),
+          telegram_id: userId.toString(),
           OutSum: amount.toString(),
           InvId: invId.toString(),
           currency: 'STARS',
@@ -172,6 +166,7 @@ emailWizard.on('text', async ctx => {
           email: email,
           payment_method: 'Telegram',
           subscription: 'stars',
+          bot_name: 'leela_chakra_ai_bot',
         })
         //
 
