@@ -15,7 +15,7 @@ export async function startNewGame(telegram_id: string, isRu: boolean) {
       telegram_id,
       ...initialStep,
     })
-
+    console.log('data', data)
     if (error) {
       console.error('error startNewGame:', error)
       throw new Error('Не удалось начать новую игру')

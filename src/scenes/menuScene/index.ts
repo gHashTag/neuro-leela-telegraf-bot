@@ -29,7 +29,7 @@ export const menuScene = new Scenes.WizardScene<MyContext>(
         newSubscription = subscription
       }
 
-      const { loka, gameSteps } = await getPlanNumber(telegram_id)
+      const { loka, gameSteps } = await getPlanNumber(telegram_id, ctx)
 
       const inlineKeyboard: InlineKeyboardButton[][] = []
       const fullAccess = checkFullAccess(newSubscription)

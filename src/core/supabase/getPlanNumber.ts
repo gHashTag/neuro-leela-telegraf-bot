@@ -1,7 +1,10 @@
 import { supabase } from './'
-
+import { startNewGame } from './startNewGame'
+import { isRussian } from '@/helpers'
+import { MyContext } from '@/interfaces'
 export async function getPlanNumber(
-  telegram_id: string
+  telegram_id: string,
+  ctx: MyContext
 ): Promise<{ loka: number; gameSteps: number } | null> {
   try {
     // Получаем количество записей
@@ -24,11 +27,18 @@ export async function getPlanNumber(
       .limit(1)
       .single()
 
+    const isRu = isRussian(ctx)
+
     if (error) {
       console.error('Ошибка при получении последней записи игры:', error)
-      return null
+
+      return await startNewGame(telegram_id, isRu)
     }
 
+    if (!data) {
+      console.error('Данные не найдены для telegram_id:', telegram_id)
+      return await startNewGame(telegram_id, isRu)
+    }
     return {
       loka: data.loka,
       gameSteps: count || 0,
