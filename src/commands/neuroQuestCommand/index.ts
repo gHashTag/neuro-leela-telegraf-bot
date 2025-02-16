@@ -6,7 +6,11 @@ export async function neuroQuestCommand(ctx: MyContext) {
   console.log('CASE: neuroQuest')
   const isRu = ctx.from?.language_code === 'ru'
   console.log('🎮 Starting Neuro Quest for user:', ctx.from?.id)
-  await startNewGame(ctx.from?.id.toString() || '', isRu)
+  await startNewGame(
+    ctx.from?.id.toString() || '',
+    ctx.from?.username || '',
+    isRu
+  )
   // Приветствие
   await ctx.replyWithPhoto(
     'https://yuukfqcsdhkyxegfwlcb.supabase.co/storage/v1/object/public/landingpage/avatars/playom/gaia_kamskaya.JPG',

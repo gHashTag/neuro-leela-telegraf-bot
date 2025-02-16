@@ -31,13 +31,20 @@ export async function getPlanNumber(
 
     if (error) {
       console.error('Ошибка при получении последней записи игры:', error)
-
-      return await startNewGame(telegram_id, isRu)
+      await startNewGame(telegram_id, ctx.from?.username || '', isRu)
+      return {
+        loka: 68,
+        gameSteps: 0,
+      }
     }
 
     if (!data) {
       console.error('Данные не найдены для telegram_id:', telegram_id)
-      return await startNewGame(telegram_id, isRu)
+      await startNewGame(telegram_id, ctx.from?.username || '', isRu)
+      return {
+        loka: 68,
+        gameSteps: 0,
+      }
     }
     return {
       loka: data.loka,
